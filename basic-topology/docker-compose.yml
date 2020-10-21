@@ -1,0 +1,46 @@
+version: '2.1'
+
+services:
+  r1:
+    build: .
+    volumes:
+      - ./volumes/quagga/r1/zebra.conf:/etc/quagga/zebra.conf:ro
+      - ./volumes/supervisord.conf:/etc/supervisord.conf:ro
+    image: quagga:dev
+    privileged: true
+    ports:
+      #admin
+      - 10011:2601
+    networks:
+      r1h1:
+        ipv4_address: 172.16.10.2
+      r1h2:
+        ipv4_address: 172.16.20.2
+  h1:
+    image: alpine
+    privileged: true
+    command: top
+    networks:
+      r1h1:
+        ipv4_address: 172.16.10.3
+  h2:
+    image: alpine
+    privileged: true
+    command: top
+    networks:
+      r1h2:
+        ipv4_address: 172.16.20.3
+
+networks:
+  r1h1:
+    driver: "bridge"
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.10.0/24
+  r1h2:
+    driver: "bridge"
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.20.0/24
